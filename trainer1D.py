@@ -46,6 +46,7 @@ class Trainer1D(object):
         dataset: Dataset,
         *,
         train_batch_size = 16,
+        num_workers = 8,
         gradient_accumulate_every = 1,
         train_lr = 1e-4,
         train_num_steps = 100000,
@@ -93,7 +94,7 @@ class Trainer1D(object):
                         batch_size = train_batch_size, 
                         shuffle = True, 
                         pin_memory = True, 
-                        num_workers = cpu_count(),
+                        num_workers = num_workers,
                         collate_fn=collator)
 
         dl = self.accelerator.prepare(dl)

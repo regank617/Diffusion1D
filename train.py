@@ -79,6 +79,7 @@ def main():
     diffusion,
     dataset = dataset,
     train_batch_size = config.training.per_gpu_batch_size,
+    num_workers=config.dataset.params.num_workers_per_gpu,
     train_lr = 8e-5,
     train_num_steps = 700000,         # total training steps
     gradient_accumulate_every = 2,    # gradient accumulation steps
