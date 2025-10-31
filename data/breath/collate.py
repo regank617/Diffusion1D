@@ -2,12 +2,13 @@ import torch
 import numpy as np
 
 class NumpyCollator:
-    def __init__(self, transform=None):
+    def __init__(self, transform=None, return_labels=True):
         """
         Args:
             transform: Callable that takes (x, mz) tuple and returns dict with 'intensity' key
         """
         self.transform = transform
+        self.return_labels = return_labels
 
     @staticmethod
     def relu(x: np.ndarray) -> np.ndarray:
@@ -41,24 +42,36 @@ class NumpyCollator:
             }
         """
         all_intensity = []
-        classes, ids, clusters = [], [], []
+        
+        if self.return_labels:
+            classes, ids, clusters = [], [], []
+            for x, (class_label, id_label, cluster_label) in batch:
+                # Ensure x is numpy array
+                if isinstance(x, torch.Tensor):
+                    x = x.numpy()
+                    #class_label=class_label.numpy()
+                    #id_label = id_label.numpy()
+                    #cluster_label=cluster_label.numpy()
+                out = self.apply_transform(x)
+                all_intensity.append(out['intensity'])
+                classes.append(class_label)
+                ids.append(id_label)
+                clusters.append(cluster_label)
 
-        for x, (class_label, id_label, cluster_label) in batch:
-            # Ensure x is numpy array
-            if isinstance(x, torch.Tensor):
-                x = x.numpy()
-                #class_label=class_label.numpy()
-                #id_label = id_label.numpy()
-                #cluster_label=cluster_label.numpy()
-            out = self.apply_transform(x)
-            all_intensity.append(out['intensity'])
-            classes.append(class_label)
-            ids.append(id_label)
-            clusters.append(cluster_label)
+            return {
+                'data': torch.stack(all_intensity).unsqueeze(1),  # [B, L]
+                'class': torch.tensor(classes),
+                'id': torch.tensor(ids),
+                'cluster': torch.tensor(clusters)
+            }
+        else:
+            for x in batch:
+                # Ensure x is numpy array
+                if isinstance(x, torch.Tensor):
+                    x = x.numpy()
+                out = self.apply_transform(x)
+                all_intensity.append(out['intensity'])
+ 
 
-        return {
-            'data': torch.stack(all_intensity).unsqueeze(1),  # [B, L]
-            'class': torch.tensor(classes),
-            'id': torch.tensor(ids),
-            'cluster': torch.tensor(clusters)
-        }
+            return torch.stack(all_intensity).unsqueeze(1),  # [B, L]
+       
