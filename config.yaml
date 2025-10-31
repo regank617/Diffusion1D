@@ -1,0 +1,78 @@
+experiment:
+  project: "VAR_1D"
+  name: "VAR1D_downstream"
+  run_name: "def_down_CLS"
+  max_train_examples: 5_224 #110_978 
+  save_every: 5_000
+  eval_every: 5_000
+  generate_every: 5_000
+  max_generated_images: 16
+  log_every: 500
+  log_grad_norm_every: 45_000
+  logger: "wandb"
+  debug: False
+  resume: True
+  init_checkpoint: ""
+  # vqgan_checkpoint: "MODEL_PATH/vqgan_plus_10bit.bin"  # Only for evaluating a trained model
+
+model:
+  unet: 
+    dim: 192
+    dim_mults: [1, 2, 4, 8]
+    channels: 1
+  diffusion:
+    seq_length: 4096
+    timesteps: 1000
+    objective: 'pred_noise'
+
+dataset:
+  params:
+    name: 'breath'
+    train_shards_path_or_url: null
+    eval_shards_path_or_url: null
+    shuffle_buffer_size: 1000
+    num_workers_per_gpu: 8
+    pin_memory: True
+    persistent_workers: True
+    data_dir: "../DataHub/JHH_Breath/h5/" #"/work/ececis_research/regan/DataHub/breath/h5"
+    multi_gpu: False
+
+  preprocessing:
+    resolution: 4096
+    use_aspect_ratio_aug: True
+    use_random_crop: True
+    min_scale: 0.8
+    interpolation: "bilinear"
+
+
+optimizer:
+  name: adamw 
+  params: # default adamw params
+    learning_rate: 1e-4
+    discriminator_learning_rate: 1e-4
+    scale_lr: False # scale learning rate by total batch size
+    beta1: 0.9
+    beta2: 0.999
+    weight_decay: 1e-4
+    epsilon: 1e-8
+
+
+lr_scheduler:
+  scheduler: "cosine_with_minimum"
+  params:
+    learning_rate: ${optimizer.params.learning_rate}
+    warmup_steps: 5_000
+
+
+training:
+  gradient_accumulation_steps: 1
+  per_gpu_batch_size: 64 ###
+  mixed_precision: "fp16" #"no"  # "bf16"
+  enable_tf32: True
+  use_ema: True
+  seed: 42
+  max_train_steps: 261_200 #375_000
+  overfit_batch: False
+  overfit_batch_num: 1
+  num_generated_images: 2  # Must be smaller than or equal to per_gpu_batch_size
+  max_grad_norm: 1.0
