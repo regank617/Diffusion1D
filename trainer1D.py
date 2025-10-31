@@ -89,7 +89,7 @@ class Trainer1D(object):
         self.train_num_steps = train_num_steps
 
         # dataset and dataloader
-        collator = NumpyCollator()
+        collator = NumpyCollator(return_labels=False)
         dl = DataLoader(dataset, 
                         batch_size = train_batch_size, 
                         shuffle = True, 

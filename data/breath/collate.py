@@ -73,5 +73,5 @@ class NumpyCollator:
                 all_intensity.append(out['intensity'])
  
 
-            return torch.stack(all_intensity).unsqueeze(1),  # [B, L]
+            return torch.stack(all_intensity).unsqueeze(1)
        
