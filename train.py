@@ -88,7 +88,7 @@ def main():
     )
 
     # ------- TRAIN ------- #
-    trainer.testing()
+    trainer.train()
 
 
 
