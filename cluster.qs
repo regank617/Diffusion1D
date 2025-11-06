@@ -8,4 +8,4 @@
 
 vpkg_require anaconda
 source activate torch
-python train.py run=1
+python train.py config='./config.yaml' run=1
