@@ -1,7 +1,7 @@
 experiment:
   project: "VAR_1D"
   name: "VAR1D_downstream"
-  run_name: "def_down_CLS"
+  run_name: "./defense_diffusion"
   max_train_examples: 5_224 #110_978 
   save_every: 5_000
   eval_every: 5_000
